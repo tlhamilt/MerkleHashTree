@@ -12,20 +12,19 @@ int main(int argc, char** argv) {
         int numFiles = 0;
         int filesLeft;
         char hashes[argc - 1][17];
-        for(int x = 0; x < argc - 1; x++) {
-                for(int y = 0; y < 17; y++) {
-                        hashes[x][y] = '\0';
-                }
-        }
         for(int i = 1; i < argc; i++) {
                 FILE* fp = fopen(argv[i], "r");
                 if(fp != NULL) {
-                        const char* data = NULL;
+                        unsigned char* data = NULL;
                         size_t size = 0;
+                        for(int j = 0; j < 17; j++) {
+                                hashes[i - 1][j] = '\0';
+                        }
                         getdelim(&data, &size, '\0', fp);
                         MD5(data, strlen(data), hashes[i - 1]);
                         free(data);
                         numFiles++;
+                        fclose(fp);
                 }
         }
         if(numFiles == 0) {
@@ -38,28 +37,23 @@ int main(int argc, char** argv) {
                 int i = 0;
                 while(i < numFiles) {
                         if(i + 1 < numFiles) {
-                                char comb[33];
-                                for(int x = 0; x < 33; x++) {
-                                        comb[x] = '\0';
-                                }
+                                unsigned char comb[33] = "";
                                 strncpy(comb, hashes[i], strlen(hashes[i]));
                                 strncat(comb, hashes[i + 1], strlen(hashes[i + 1]));
-                                for(int x = 0; x < 17; x++) {
-                                        hashes[filesLeft][x] = '\0';
+                                for(int j = 0; j < 17; j++) {
+                                        hashes[filesLeft][j] = '\0';
                                 }
-                                MD5(comb, strlen(hashes[i]) + strlen(hashes[i + 1]), hashes[filesLeft]);
+                                MD5(comb, strlen(comb), hashes[filesLeft]);
                                 i = i + 2;
                         }
                         else {
-                                for(int x = 0; x < 17; x++) {
-                                        hashes[filesLeft][x] = '\0';
-                                }
                                 strncpy(hashes[filesLeft], hashes[i], strlen(hashes[i]));
                                 i++;
                         }
                         filesLeft++;
                 }
                 numFiles = filesLeft;
-	}
+        }
         printf("Top Hash: \"%s\"\n", hashes[0]);
         return 0;
+}
