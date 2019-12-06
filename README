@@ -1,0 +1,3 @@
+Note:  The bug that caused certain files to not affect the hash during the presentation has been fixed
+This program requires the OpenSSL library
+When compiling, include the -lssl and -lcryto tags
